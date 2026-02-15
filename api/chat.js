@@ -1,3 +1,5 @@
+import { createClient } from '@supabase/supabase-js';
+
 export const config = {
   runtime: 'edge', // Optional: Use Edge Runtime for lower latency
 };
@@ -50,6 +52,18 @@ export default async function handler(req) {
       systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
     };
 
+    // Initialize Supabase
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_ANON_KEY;
+    const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
+
+    // Save User Message
+    if (supabase) {
+      await supabase.from('messages').insert([
+        { role: 'user', content: message || '[Image]', image_data: image ? 'image_attached' : null }
+      ]);
+    }
+
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -64,6 +78,13 @@ export default async function handler(req) {
 
     const data = await response.json();
     const reply = data.candidates[0].content.parts[0].text;
+
+    // Save AI Message
+    if (supabase) {
+      await supabase.from('messages').insert([
+        { role: 'model', content: reply }
+      ]);
+    }
 
     return new Response(JSON.stringify({ reply }), {
       status: 200,
