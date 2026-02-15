@@ -59,8 +59,9 @@ export default async function handler(req) {
 
     // Save User Message
     if (supabase) {
+      // Using 'sender' instead of 'role' to match user's table
       await supabase.from('messages').insert([
-        { role: 'user', content: message || '[Image]', image_data: image ? 'image_attached' : null }
+        { sender: 'user', content: message || '[Image]', image_data: image ? 'image_attached' : null }
       ]);
     }
 
@@ -82,7 +83,7 @@ export default async function handler(req) {
     // Save AI Message
     if (supabase) {
       await supabase.from('messages').insert([
-        { role: 'model', content: reply }
+        { sender: 'model', content: reply }
       ]);
     }
 

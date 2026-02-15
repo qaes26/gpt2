@@ -559,7 +559,9 @@
                 const data = await res.json();
                 if (data.messages && data.messages.length > 0) {
                     data.messages.forEach(msg => {
-                        if (msg.role === 'user') {
+                        // Check for 'role' OR 'sender' to be safe
+                        const role = msg.role || msg.sender;
+                        if (role === 'user') {
                             addUserMessage(msg.content, null);
                         } else {
                             addAiMessage(msg.content, null);
