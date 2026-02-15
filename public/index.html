@@ -315,12 +315,17 @@
         const tabSignUp = document.getElementById('tab-signup');
         
         let isSignUp = false;
-        let supabase = null;
+        let supabaseClient = null;
         let currentUser = null;
 
         // Initialize Supabase
         async function initSupabase() {
             try {
+                // Ensure the library is loaded
+                if (!window.supabase || !window.supabase.createClient) {
+                    throw new Error("Supabase library not loaded");
+                }
+                const { createClient } = window.supabase;
                 // Fetch config from backend to keep keys somewhat managed (or just use what we have)
                 // Actually, for this specific user request, let's hardcode the keys if they provided them before,
                 // otherwise we should fetch them.
@@ -330,7 +335,7 @@
                 const config = await res.json();
                 
                 if (config.url && config.key) {
-                    supabase = createClient(config.url, config.key);
+                    supabaseClient = createClient(config.url, config.key);
                     checkSession();
                 } else {
                     console.error("Supabase config missing");
@@ -343,14 +348,15 @@
         }
 
         async function checkSession() {
-            const { data: { session } } = await supabase.auth.getSession();
+            if (!supabaseClient) return;
+            const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 handleLoginSuccess(session.user);
             } else {
                 authOverlay.classList.remove('hidden');
             }
 
-            supabase.auth.onAuthStateChange((event, session) => {
+            supabaseClient.auth.onAuthStateChange((event, session) => {
                 if (session) {
                     handleLoginSuccess(session.user);
                 } else {
@@ -406,15 +412,17 @@
             const password = passwordInput.value;
 
             try {
+                if (!supabaseClient) throw new Error("Supabase not initialized");
+                
                 let error;
                 if (isSignUp) {
-                    const res = await supabase.auth.signUp({ email, password });
+                    const res = await supabaseClient.auth.signUp({ email, password });
                     error = res.error;
                     if (!error) {
                         alert("تم إنشاء الحساب! يرجى تأكيد البريد الإلكتروني إذا وصلتك رسالة، أو سيتم الدخول مباشرة.");
                     }
                 } else {
-                    const res = await supabase.auth.signInWithPassword({ email, password });
+                    const res = await supabaseClient.auth.signInWithPassword({ email, password });
                     error = res.error;
                 }
 
