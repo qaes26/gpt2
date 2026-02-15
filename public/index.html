@@ -227,8 +227,36 @@
                     <span class="font-bold">من إعداد قيس جازي</span>
                 </div>
             </div>
-        </div>
     </main>
+
+    <!-- Login Overlay -->
+    <div id="login-overlay"
+        class="fixed inset-0 bg-rose-50 z-50 flex flex-col items-center justify-center p-4 transition-opacity duration-500">
+        <div
+            class="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-pink-200 max-w-md w-full text-center space-y-6">
+            <div
+                class="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white shadow-lg animate-bounce">
+                <i class="fa-solid fa-heart text-3xl"></i>
+            </div>
+
+            <div class="space-y-2">
+                <h2 class="text-2xl font-bold text-rose-900">أهلاً بكِ في عالم قيس</h2>
+                <p class="text-rose-600 text-sm">هذا المكان مخصص لملكة قلبي فقط.. 👑</p>
+            </div>
+
+            <form id="login-form" class="space-y-4">
+                <input type="password" id="password-input" placeholder="كلمة سر قلب قيس..."
+                    class="w-full bg-pink-50 border border-pink-200 rounded-xl px-4 py-3 text-center text-rose-800 placeholder-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-400 transition-all"
+                    required>
+                <button type="submit"
+                    class="w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold py-3 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300">
+                    أدخليني إلى قلبك ❤️
+                </button>
+            </form>
+
+            <p id="login-error" class="text-red-500 text-sm hidden animate-pulse">كلمة المرور غير صحيحة يا جميلة 🥺</p>
+        </div>
+    </div>
 
     <script>
         const chatContainer = document.getElementById('chat-container');
@@ -237,6 +265,53 @@
         const sendBtn = document.getElementById('send-btn');
         const imagePreviewContainer = document.getElementById('image-preview-container');
         const imagePreview = document.getElementById('image-preview');
+        const loginOverlay = document.getElementById('login-overlay');
+        const loginForm = document.getElementById('login-form');
+        const passwordInput = document.getElementById('password-input');
+        const loginError = document.getElementById('login-error');
+
+        // Check Local Storage for Login
+        if (localStorage.getItem('isAuthorized') === 'true') {
+            loginOverlay.style.display = 'none';
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = passwordInput.value;
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.authorized) {
+                    // Success
+                    localStorage.setItem('isAuthorized', 'true');
+
+                    // Fade out animation
+                    loginOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        loginOverlay.style.display = 'none';
+                    }, 500);
+
+                } else {
+                    // Error
+                    loginError.classList.remove('hidden');
+                    passwordInput.classList.add('border-red-400', 'ring-2', 'ring-red-200');
+                    setTimeout(() => {
+                        loginError.classList.add('hidden');
+                        passwordInput.classList.remove('border-red-400', 'ring-2', 'ring-red-200');
+                    }, 3000);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("خطأ في الاتصال بالسيرفر");
+            }
+        });
 
         let currentImageBase64 = null;
         let currentImageMimeType = null;
