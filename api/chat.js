@@ -58,10 +58,15 @@ export default async function handler(req) {
     const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
     // Save User Message
-    if (supabase) {
+    if (supabase && user_id) {
       // Using 'sender' instead of 'role' to match user's table
       await supabase.from('messages').insert([
-        { sender: 'user', content: message || '[Image]', image_data: image ? 'image_attached' : null }
+        {
+          sender: 'user',
+          content: message || '[Image]',
+          image_data: image ? 'image_attached' : null,
+          user_id: user_id // Save User ID
+        }
       ]);
     }
 
@@ -81,9 +86,13 @@ export default async function handler(req) {
     const reply = data.candidates[0].content.parts[0].text;
 
     // Save AI Message
-    if (supabase) {
+    if (supabase && user_id) {
       await supabase.from('messages').insert([
-        { sender: 'model', content: reply }
+        {
+          sender: 'model',
+          content: reply,
+          user_id: user_id // Save User ID
+        }
       ]);
     }
 

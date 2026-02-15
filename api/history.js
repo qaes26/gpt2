@@ -21,10 +21,22 @@ export default async function handler(req) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Get user_id from URL query params
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get('user_id');
+
+    if (!userId) {
+        return new Response(JSON.stringify({ messages: [] }), { // Return empty if no user_id
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
+
     try {
         const { data, error } = await supabase
             .from('messages')
             .select('*')
+            .eq('user_id', userId) // Filter by User ID
             .order('created_at', { ascending: true }) // Oldest first
             .limit(50);
 

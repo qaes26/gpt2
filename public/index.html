@@ -224,40 +224,78 @@
                     </button>
                 </form>
                 <div class="text-center mt-2 text-xs text-rose-400 font-light">
+        <div class="text-center mt-2 text-xs text-rose-400 font-light">
                     <span class="font-bold">من إعداد قيس جازي</span>
                 </div>
             </div>
     </main>
 
-    <!-- Login Overlay -->
-    <div id="login-overlay"
-        class="fixed inset-0 bg-rose-50 z-50 flex flex-col items-center justify-center p-4 transition-opacity duration-500">
-        <div
-            class="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-pink-200 max-w-md w-full text-center space-y-6">
-            <div
-                class="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white shadow-lg animate-bounce">
-                <i class="fa-solid fa-heart text-3xl"></i>
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Auth Overlay -->
+    <div id="auth-overlay" class="fixed inset-0 bg-rose-50 z-50 flex flex-col items-center justify-center p-4 transition-all duration-500">
+        <div class="bg-white/90 backdrop-blur-md p-8 rounded-3xl shadow-2xl border border-pink-200 max-w-md w-full space-y-6">
+            
+            <div class="text-center space-y-2">
+                <div class="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white shadow-lg mb-4">
+                    <i class="fa-solid fa-heart text-2xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-rose-900">أهلاً بكِ في عالم قيس</h2>
+                <p class="text-rose-600 text-sm">سجلي دخولك لنحفظ ذكرياتنا الجميلة ❤️</p>
             </div>
 
-            <div class="space-y-2">
-                <h2 class="text-2xl font-bold text-rose-900">أهلاً بكِ في عالم قيس</h2>
-                <p class="text-rose-600 text-sm">هذا المكان مخصص لملكة قلبي فقط.. 👑</p>
+            <!-- Tabs -->
+            <div class="flex border-b border-pink-200">
+                <button onclick="switchTab('signin')" id="tab-signin" class="flex-1 pb-2 text-rose-600 font-bold border-b-2 border-rose-500 transition-colors">تسجيل دخول</button>
+                <button onclick="switchTab('signup')" id="tab-signup" class="flex-1 pb-2 text-gray-400 hover:text-rose-400 transition-colors">حساب جديد</button>
             </div>
 
-            <form id="login-form" class="space-y-4">
-                <input type="password" id="password-input" placeholder="كلمة سر قلب قيس..."
-                    class="w-full bg-pink-50 border border-pink-200 rounded-xl px-4 py-3 text-center text-rose-800 placeholder-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-400 transition-all"
-                    required>
-                <button type="submit"
-                    class="w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold py-3 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300">
-                    أدخليني إلى قلبك ❤️
+            <!-- Form -->
+            <form id="auth-form" class="space-y-4 pt-2">
+                <div>
+                    <label class="block text-xs font-bold text-rose-700 mb-1 mr-1">البريد الإلكتروني</label>
+                    <input type="email" id="email" required class="w-full bg-pink-50 border border-pink-200 rounded-xl px-4 py-3 text-right text-rose-900 focus:outline-none focus:ring-2 focus:ring-rose-400 dir-rtl">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-rose-700 mb-1 mr-1">كلمة المرور</label>
+                    <input type="password" id="password" required class="w-full bg-pink-50 border border-pink-200 rounded-xl px-4 py-3 text-right text-rose-900 focus:outline-none focus:ring-2 focus:ring-rose-400 dir-rtl">
+                </div>
+                
+                <p id="auth-error" class="text-red-500 text-xs text-center hidden"></p>
+
+                <button type="submit" id="auth-submit" class="w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold py-3 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300">
+                    دخول
                 </button>
             </form>
-
-            <p id="login-error" class="text-red-500 text-sm hidden animate-pulse">كلمة المرور غير صحيحة يا جميلة 🥺</p>
         </div>
     </div>
 
+    <!-- Sidebar Logout Button (Hidden by default) -->
+    <div id="logout-btn-container" class="fixed bottom-4 left-4 z-50 hidden md:block"></div>
+
+    <script>
+        // --- Configuration ---
+        // !!! IMPORTANT !!!
+        // You must replace these with your actual Supabase URL and Anon Key
+        // Get them from your Vercel Project Environment Variables or Supabase Dashboard
+        // Since this is client-side, we need to fetch them from env if possible, 
+        // OR hardcode them here if we want a quick fix. 
+        // Ideally, we'd inject them via build process.
+        // For now, I will assume the user has to input them or we use a clever fetch to a config endpoint.
+        // BUT, a simpler way for Vercel + HTML is to just use the one we know or have user input it.
+        
+        // Wait! We can't access process.env in browser directly without a bundler.
+        // I will add a small helper endpoint /api/config to get public keys if needed, 
+        // OR just ask the user to fill them in the code for now.
+        // IMPROVEMENT: Let's fetch the public config from a new endpoint /api/auth_config.js
+        
+        // ... (Script Logic Below) ...
+    </script>
+    
+    <!-- We need to fetch the config first or hardcode it. Let's create a quick config endpoint in next step.
+         For now, I'll put placeholders and we'll fill them. -->
+     
     <script>
         const chatContainer = document.getElementById('chat-container');
         const chatForm = document.getElementById('chat-form');
@@ -265,53 +303,140 @@
         const sendBtn = document.getElementById('send-btn');
         const imagePreviewContainer = document.getElementById('image-preview-container');
         const imagePreview = document.getElementById('image-preview');
-        const loginOverlay = document.getElementById('login-overlay');
-        const loginForm = document.getElementById('login-form');
-        const passwordInput = document.getElementById('password-input');
-        const loginError = document.getElementById('login-error');
+        
+        // Auth UI Elements
+        const authOverlay = document.getElementById('auth-overlay');
+        const authForm = document.getElementById('auth-form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const authError = document.getElementById('auth-error');
+        const submitBtn = document.getElementById('auth-submit');
+        const tabSignIn = document.getElementById('tab-signin');
+        const tabSignUp = document.getElementById('tab-signup');
+        
+        let isSignUp = false;
+        let supabase = null;
+        let currentUser = null;
 
-        // Check Local Storage for Login
-        if (localStorage.getItem('isAuthorized') === 'true') {
-            loginOverlay.style.display = 'none';
+        // Initialize Supabase
+        async function initSupabase() {
+            try {
+                // Fetch config from backend to keep keys somewhat managed (or just use what we have)
+                // Actually, for this specific user request, let's hardcode the keys if they provided them before,
+                // otherwise we should fetch them.
+                // Since I don't have the keys in the prompt context to hardcode safely without leaking,
+                // I will fetch them from a new endpoint /api/supabase-config
+                const res = await fetch('/api/supabase-config');
+                const config = await res.json();
+                
+                if (config.url && config.key) {
+                    supabase = createClient(config.url, config.key);
+                    checkSession();
+                } else {
+                    console.error("Supabase config missing");
+                    authError.textContent = "خطأ في إعدادات الاتصال (مفتاح API مفقود)";
+                    authError.classList.remove('hidden');
+                }
+            } catch (e) {
+                console.error("Init Error", e);
+            }
         }
 
-        loginForm.addEventListener('submit', async (e) => {
+        async function checkSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                handleLoginSuccess(session.user);
+            } else {
+                authOverlay.classList.remove('hidden');
+            }
+
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    handleLoginSuccess(session.user);
+                } else {
+                    currentUser = null;
+                    authOverlay.classList.remove('hidden');
+                    authOverlay.style.opacity = '1';
+                }
+            });
+        }
+
+        function handleLoginSuccess(user) {
+            currentUser = user;
+            authOverlay.style.opacity = '0';
+            setTimeout(() => {
+                authOverlay.classList.add('hidden');
+            }, 500);
+            
+            // Allow chat to function
+            // Placeholder for loading chat history or other post-login actions
+            // loadChatHistory(); 
+        }
+
+        function switchTab(mode) {
+            isSignUp = mode === 'signup';
+            authError.classList.add('hidden');
+            
+            if (isSignUp) {
+                tabSignUp.classList.add('text-rose-600', 'font-bold', 'border-b-2', 'border-rose-500');
+                tabSignUp.classList.remove('text-gray-400');
+                
+                tabSignIn.classList.remove('text-rose-600', 'font-bold', 'border-b-2', 'border-rose-500');
+                tabSignIn.classList.add('text-gray-400');
+                
+                submitBtn.textContent = 'إنشاء حساب جديد';
+            } else {
+                tabSignIn.classList.add('text-rose-600', 'font-bold', 'border-b-2', 'border-rose-500');
+                tabSignIn.classList.remove('text-gray-400');
+                
+                tabSignUp.classList.remove('text-rose-600', 'font-bold', 'border-b-2', 'border-rose-500');
+                tabSignUp.classList.add('text-gray-400');
+                
+                submitBtn.textContent = 'دخول';
+            }
+        }
+
+        authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            authError.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'جاري المعالجة...';
+            
+            const email = emailInput.value;
             const password = passwordInput.value;
 
             try {
-                const res = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password })
-                });
-
-                const data = await res.json();
-
-                if (res.ok && data.authorized) {
-                    // Success
-                    localStorage.setItem('isAuthorized', 'true');
-
-                    // Fade out animation
-                    loginOverlay.style.opacity = '0';
-                    setTimeout(() => {
-                        loginOverlay.style.display = 'none';
-                    }, 500);
-
+                let error;
+                if (isSignUp) {
+                    const res = await supabase.auth.signUp({ email, password });
+                    error = res.error;
+                    if (!error) {
+                        alert("تم إنشاء الحساب! يرجى تأكيد البريد الإلكتروني إذا وصلتك رسالة، أو سيتم الدخول مباشرة.");
+                    }
                 } else {
-                    // Error
-                    loginError.classList.remove('hidden');
-                    passwordInput.classList.add('border-red-400', 'ring-2', 'ring-red-200');
-                    setTimeout(() => {
-                        loginError.classList.add('hidden');
-                        passwordInput.classList.remove('border-red-400', 'ring-2', 'ring-red-200');
-                    }, 3000);
+                    const res = await supabase.auth.signInWithPassword({ email, password });
+                    error = res.error;
                 }
+
+                if (error) throw error;
+
             } catch (err) {
-                console.error(err);
-                alert("خطأ في الاتصال بالسيرفر");
+                authError.textContent = translateAuthError(err.message);
+                authError.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = isSignUp ? 'إنشاء حساب جديد' : 'دخول';
             }
         });
+
+        function translateAuthError(msg) {
+            if (msg.includes("Invalid login credentials")) return "البريد الإلكتروني أو كلمة المرور غير صحيحة";
+            if (msg.includes("User already registered")) return "هذا البريد مسجل مسبقاً";
+            if (msg.includes("Password should be")) return "كلمة المرور يجب أن تكون 6 أحرف على الأقل";
+            return "حدث خطأ: " + msg;
+        }
+
+        // ... (Chat Logic) ...
 
         let currentImageBase64 = null;
         let currentImageMimeType = null;
@@ -329,6 +454,10 @@
             "مين قيس": "أنا حبيبك، وسندك، واللي صممت هذا الموقع عشان أشوف ضحكتك.",
             "اشتقتلك": "وأنا ميت من الشوق لعيونك.. يا ريتك قبالي هسا 🥺"
         };
+        
+        // --- Init ---
+        initSupabase();
+
 
         // --- Image Handling ---
         function handleImageSelect(input) {
@@ -553,11 +682,17 @@
 
         // --- History Logic ---
         async function loadChatHistory() {
+            if (!currentUser) return; // Don't load if not logged in
+
             try {
-                const res = await fetch('/api/history');
+                // Pass user_id query param
+                const res = await fetch(`/api/history?user_id=${currentUser.id}`);
                 if (!res.ok) throw new Error("History fetch failed");
                 const data = await res.json();
+
                 if (data.messages && data.messages.length > 0) {
+                    // Start fresh if we have messages
+                    chatContainer.innerHTML = '';
                     data.messages.forEach(msg => {
                         // Check for 'role' OR 'sender' to be safe
                         const role = msg.role || msg.sender;
@@ -567,18 +702,50 @@
                             addAiMessage(msg.content, null);
                         }
                     });
+                    scrollToBottom();
                 } else {
-                    // console.log("No history found or empty");
+                    // No history? Show welcome message if container is empty
+                    if (chatContainer.innerHTML.trim() === '') {
+                        restoreWelcomeMessage();
+                    }
                 }
             } catch (e) {
                 console.error("Failed to load history", e);
-                // Optional: Show a small toast to user if needed, but keeping it clean for now
+                // If error and empty, show welcome
+                if (chatContainer.innerHTML.trim() === '') {
+                    restoreWelcomeMessage();
+                }
             }
         }
 
+        function restoreWelcomeMessage() {
+            chatContainer.innerHTML = `
+            <div class="flex gap-4 max-w-3xl mx-auto opacity-0 animate-fade-in" style="animation: fadeIn 0.5s forwards;">
+                <div class="w-10 h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white shadow-md border-2 border-white">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
+                <div class="flex-1 space-y-2">
+                    <div class="font-bold text-rose-900 text-sm">قيس GPT</div>
+                    <div class="text-gray-800 leading-relaxed bg-white p-4 rounded-2xl rounded-tr-none shadow-sm border border-pink-100">
+                        أهلاً بكِ يا أميرتي رهف.. 🌹<br>
+                        أنا نسختكِ من قيس، موجود هنا لأسمعكِ وأحبكِ في كل وقت. عماذا تودين الحديث اليوم؟
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
         async function reloadHistory() {
-            chatContainer.innerHTML = ''; // Clear chat
-            await loadChatHistory();
+            // Don't clear immediately, wait for data
+            // Show a small loading spinner if you want, or just wait
+            const oldContent = chatContainer.innerHTML;
+            chatContainer.innerHTML = '<div class="text-center text-rose-400 p-4"><i class="fa-solid fa-spinner fa-spin"></i> جاري استرجاع الذكريات...</div>';
+
+            try {
+                await loadChatHistory();
+            } catch (e) {
+                chatContainer.innerHTML = oldContent; // Restore if fail
+            }
         }
 
         function playFavoriteSong() {
