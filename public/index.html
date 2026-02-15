@@ -128,12 +128,18 @@
             </button>
 
             <div class="text-xs font-semibold text-rose-500 px-2 mt-4 mb-2">ذكرياتنا الجميلة</div>
+            <button onclick="reloadHistory()"
+                class="w-full text-right p-3 rounded-lg hover:bg-white/60 transition-colors flex items-center gap-3 text-sm text-rose-800 group">
+                <i
+                    class="fa-solid fa-clock-rotate-left text-rose-400 group-hover:rotate-180 transition-transform duration-500"></i>
+                المحادثات السابقة
+            </button>
             <button
                 class="w-full text-right p-3 rounded-lg hover:bg-white/60 transition-colors flex items-center gap-3 text-sm text-rose-800 group">
                 <i class="fa-regular fa-star text-rose-400"></i>
                 أول لقاء لنا
             </button>
-            <button
+            <button onclick="playFavoriteSong()"
                 class="w-full text-right p-3 rounded-lg hover:bg-white/60 transition-colors flex items-center gap-3 text-sm text-rose-800 group">
                 <i class="fa-solid fa-music text-rose-400"></i>
                 أغنيتنا المفضلة
@@ -483,6 +489,23 @@
             } catch (e) {
                 console.error("Failed to load history", e);
             }
+        }
+
+        async function reloadHistory() {
+            chatContainer.innerHTML = ''; // Clear chat
+            await loadChatHistory();
+        }
+
+        function playFavoriteSong() {
+            addUserMessage("شغل أغنيتنا المفضلة.. 🎶", null);
+            setTimeout(() => {
+                const videoHtml = `
+                    <div class="w-full rounded-lg overflow-hidden border-2 border-rose-300 shadow-md">
+                        <iframe width="100%" height="250" src="https://www.youtube.com/embed/O--o-O-ABBw?autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    </div>
+                `;
+                addAiMessage("تفضلي يا عمري.. هذي الأغنية إلك ❤️\n\n" + videoHtml);
+            }, 500);
         }
 
         // Load history on start
