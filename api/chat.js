@@ -23,7 +23,7 @@ export default async function handler(req) {
   }
 
   try {
-    const { message, image, mimeType } = await req.json();
+    const { message, image, mimeType, user_id } = await req.json();
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
