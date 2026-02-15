@@ -31,18 +31,8 @@ export default async function handler(req) {
       });
     }
 
-    const modelParams = "gemini-2.0-flash"; // Using a stable model name or the one requested if available. 
-    // The user had "gemini-2.5-flash-preview-09-2025" which might be specific. 
-    // Let's use a standard one for now or keep theirs if checking strict validity.
-    // I will use "gemini-1.5-flash" or similar as standard, but let's stick to their string if it works, 
-    // or better, use "gemini-1.5-flash" as it is generally available and fast.
-    // Actually, let's use the one they had but maybe fallback to 1.5-flash if it fails?
-    // User had "gemini-2.5-flash-preview-09-2025". This looks like a future/preview model. 
-    // I will use "gemini-1.5-flash" for reliability unless they strictly want that specific one.
-    // Let's verify if I can use their specific model. PROBABLY better to use a known working one for deployment.
-    // I will use "gemini-1.5-flash" for now.
-
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const modelParams = "gemini-1.5-flash-latest";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelParams}:generateContent?key=${apiKey}`;
 
     const parts = [];
     if (message) parts.push({ text: message });
