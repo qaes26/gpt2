@@ -337,11 +337,16 @@
             return loadingDiv;
         }
 
-        function addAiMessage(text) {
+        function addAiMessage(text, customHtml = null) {
             const msgDiv = document.createElement('div');
             msgDiv.className = 'flex gap-4 max-w-3xl mx-auto animate-fade-in';
             // Parse Markdown
             const parsedText = marked.parse(text);
+
+            let finalContent = parsedText;
+            if (customHtml) {
+                finalContent += `<div class="mt-4 not-prose">${customHtml}</div>`;
+            }
 
             msgDiv.innerHTML = `
                 <div class="w-10 h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white shadow-md border-2 border-white">
@@ -349,8 +354,8 @@
                 </div>
                 <div class="flex-1 space-y-2">
                     <div class="font-bold text-rose-900 text-sm">قيس GPT</div>
-                    <div class="text-white leading-relaxed bg-gradient-to-r from-rose-500 to-pink-600 p-4 rounded-2xl rounded-tr-none shadow-md prose prose-sm max-w-none prose-invert">
-                        ${parsedText}
+                    <div class="text-white leading-relaxed bg-gradient-to-r from-rose-500 to-pink-600 p-4 rounded-2xl rounded-tr-none shadow-md prose prose-sm max-w-none prose-invert font-cairo">
+                        ${finalContent}
                     </div>
                 </div>
             `;
@@ -411,10 +416,10 @@
             try {
                 const response = await callGemini(prompt, null, null);
                 loader.remove();
-                addAiMessage(response);
+                addAiMessage(response, null);
             } catch (e) {
                 loader.remove();
-                addAiMessage("حبي لك أكبر من كل الكلمات.. ❤️");
+                addAiMessage("حبي لك أكبر من كل الكلمات.. ❤️", null);
             }
         }
 
@@ -448,7 +453,7 @@
             if (!hasImage && specificAnswers[cleanInput]) {
                 setTimeout(() => {
                     loader.remove();
-                    addAiMessage(specificAnswers[cleanInput]);
+                    addAiMessage(specificAnswers[cleanInput], null);
                     sendBtn.disabled = false;
                     userInput.focus();
                 }, 1000);
@@ -459,7 +464,7 @@
             const responseText = await callGemini(tempText || "شوفي هالصورة يا عمري..", tempImage, tempMime);
 
             loader.remove();
-            addAiMessage(responseText);
+            addAiMessage(responseText, null);
             sendBtn.disabled = false;
             userInput.focus();
         });
@@ -475,19 +480,22 @@
         async function loadChatHistory() {
             try {
                 const res = await fetch('/api/history');
-                if (!res.ok) return;
+                if (!res.ok) throw new Error("History fetch failed");
                 const data = await res.json();
-                if (data.messages) {
+                if (data.messages && data.messages.length > 0) {
                     data.messages.forEach(msg => {
                         if (msg.role === 'user') {
-                            addUserMessage(msg.content, null); // Images not fully supported in history yet
+                            addUserMessage(msg.content, null);
                         } else {
-                            addAiMessage(msg.content);
+                            addAiMessage(msg.content, null);
                         }
                     });
+                } else {
+                    // console.log("No history found or empty");
                 }
             } catch (e) {
                 console.error("Failed to load history", e);
+                // Optional: Show a small toast to user if needed, but keeping it clean for now
             }
         }
 
@@ -504,7 +512,7 @@
                         <iframe width="100%" height="250" src="https://www.youtube.com/embed/O--o-O-ABBw?autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                     </div>
                 `;
-                addAiMessage("تفضلي يا عمري.. هذي الأغنية إلك ❤️\n\n" + videoHtml);
+                addAiMessage("تفضلي يا عمري.. هذي الأغنية إلك ❤️", videoHtml);
             }, 500);
         }
 
