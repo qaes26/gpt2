@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قيس GPT - مخصص لرهف</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Cairo for Arabic) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #fdf2f8; /* Very light pink/rose background */
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #fdf2f8; }
+        ::-webkit-scrollbar-thumb { background: #fbcfe8; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f9a8d4; }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-100px) rotate(20deg); opacity: 0; }
+        }
+        .heart-particle {
+            position: absolute;
+            color: #db2777; /* Pink-600 */
+            font-size: 20px;
+            pointer-events: none;
+            animation: float 2s linear forwards;
+        }
+        .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        /* Markdown Styles */
+        .prose p { margin-bottom: 0.5em; }
+        .prose strong { color: #be185d; }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden text-gray-800">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gradient-to-b from-pink-100 to-rose-200 hidden md:flex flex-col border-l border-pink-200 shadow-sm relative">
+        <div class="p-4 flex items-center gap-2 border-b border-pink-200/50">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white shadow-lg">
+                <i class="fa-solid fa-user-tie"></i>
+            </div>
+            <h1 class="text-xl font-bold text-rose-900 tracking-wide">قيس GPT</h1>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-3 space-y-2">
+            <div class="text-xs font-semibold text-rose-500 px-2 mb-2">من أجلكِ يا رهف</div>
+            
+            <button onclick="generateLoveLetter()" class="w-full text-right p-3 rounded-lg hover:bg-white/60 transition-colors flex items-center gap-3 text-sm text-rose-800 group border border-pink-200 bg-white/30">
+                <i class="fa-solid fa-envelope-open-text text-rose-500 group-hover:animate-pulse"></i>
+                <span>اكتب لي رسالة حب ✨</span>
+            </button>
+            
+            <div class="text-xs font-semibold text-rose-500 px-2 mt-4 mb-2">ذكرياتنا الجميلة</div>
+            <button class="w-full text-right p-3 rounded-lg hover:bg-white/60 transition-colors flex items-center gap-3 text-sm text-rose-800 group">
+                <i class="fa-regular fa-star text-rose-400"></i>
+                أول لقاء لنا
+            </button>
+             <button class="w-full text-right p-3 rounded-lg hover:bg-white/60 transition-colors flex items-center gap-3 text-sm text-rose-800 group">
+                <i class="fa-solid fa-music text-rose-400"></i>
+                أغنيتنا المفضلة
+            </button>
+        </div>
+
+        <div class="p-4 border-t border-pink-200/50 text-center">
+            <div class="text-xs text-rose-600 font-medium mb-1">صُنع بحب</div>
+            <div class="flex items-center justify-center gap-2 text-rose-900 font-bold bg-white/50 py-2 rounded-lg shadow-sm">
+                <i class="fa-solid fa-code text-xs"></i>
+                <span>من إعداد قيس جازي</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="flex-1 flex flex-col relative bg-gradient-to-br from-white via-pink-50 to-rose-50">
+        
+        <!-- Mobile Header -->
+        <header class="md:hidden p-4 bg-white/80 backdrop-blur-sm border-b border-pink-100 flex justify-between items-center sticky top-0 z-10">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white">
+                    <i class="fa-solid fa-user-tie text-xs"></i>
+                </div>
+                <span class="font-bold text-rose-900">قيس GPT</span>
+            </div>
+            <button class="text-rose-400 hover:text-rose-600 transition">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+        </header>
+
+        <!-- Chat Container -->
+        <div id="chat-container" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 scroll-smooth">
+            <div class="flex gap-4 max-w-3xl mx-auto opacity-0 animate-fade-in" style="animation: fadeIn 0.5s forwards;">
+                <div class="w-10 h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white shadow-md border-2 border-white">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
+                <div class="flex-1 space-y-2">
+                    <div class="font-bold text-rose-900 text-sm">قيس GPT</div>
+                    <div class="text-gray-800 leading-relaxed bg-white p-4 rounded-2xl rounded-tr-none shadow-sm border border-pink-100">
+                        أهلاً بكِ يا أميرتي رهف.. 🌹<br>
+                        أنا نسختكِ من قيس، موجود هنا لأسمعكِ وأحبكِ في كل وقت. عماذا تودين الحديث اليوم؟
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-4 md:p-6 glass-effect">
+            <div class="max-w-3xl mx-auto relative">
+                <!-- Image Preview -->
+                <div id="image-preview-container" class="hidden mb-2 relative w-fit">
+                    <img id="image-preview" src="" class="h-20 w-auto rounded-lg border-2 border-rose-300 shadow-sm">
+                    <button onclick="clearImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-md hover:bg-red-600">×</button>
+                </div>
+
+                <form id="chat-form" class="relative flex items-end gap-2 bg-white rounded-2xl border border-pink-200 shadow-lg p-2 focus-within:ring-2 focus-within:ring-rose-300 transition-all">
+                    
+                    <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageSelect(this)">
+                    <button type="button" onclick="document.getElementById('image-upload').click()" class="p-3 text-rose-300 hover:text-rose-500 transition-colors rounded-full hover:bg-rose-50" title="أرسلي لي صورة">
+                        <i class="fa-solid fa-image"></i>
+                    </button>
+                    
+                    <textarea 
+                        id="user-input"
+                        rows="1"
+                        placeholder="تحدثي مع قيس..." 
+                        class="w-full bg-transparent border-none focus:ring-0 resize-none py-3 px-2 text-gray-700 placeholder-rose-300 max-h-32 overflow-y-auto"
+                        oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
+                    ></textarea>
+
+                    <button type="submit" id="send-btn" class="p-3 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+                <div class="text-center mt-2 text-xs text-rose-400 font-light">
+                    <span class="font-bold">من إعداد قيس جازي</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        
+        let currentImageBase64 = null;
+        let currentImageMimeType = null;
+
+        // Hardcoded Answers (للإجابات السريعة والشخصية جداً)
+        // تم عكس المنظور: المستخدم هو رهف، والمتحدث هو قيس
+        const specificAnswers = {
+            "مين حبيبتك": "أنتِ طبعاً.. رهف، حبيبتي الوحيدة ❤️",
+            "مين حبيبة قيس": "أنتِ يا رهف.. مالكة قلبي 🌹",
+            "مين طفلتك": "أنتِ طفلتي المدللة يا رهف 🥰",
+            "مين طفلة قيس": "أنتِ طفلتي يا رهف 🥰",
+            "مين انا": "أنتِ رهف.. روحي وعمري وقلبي النابض ❤️",
+            "مين أنا": "أنتِ رهف.. روحي وعمري وقلبي النابض ❤️",
+            "بتحبني": "هل تسألين؟ أنا لا أحبك فقط، أنا أتنفسك عشقاً!",
+            "مين قيس": "أنا حبيبك، وسندك، واللي صممت هذا الموقع عشان أشوف ضحكتك.",
+            "اشتقتلك": "وأنا ميت من الشوق لعيونك.. يا ريتك قبالي هسا 🥺"
+        };
+
+        // --- Image Handling ---
+        function handleImageSelect(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreviewContainer.classList.remove('hidden');
+                    currentImageBase64 = e.target.result.split(',')[1]; 
+                    currentImageMimeType = file.type;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearImage() {
+            document.getElementById('image-upload').value = '';
+            imagePreview.src = '';
+            imagePreviewContainer.classList.add('hidden');
+            currentImageBase64 = null;
+            currentImageMimeType = null;
+        }
+
+        // --- Chat UI Functions ---
+        function createHeart(x, y) {
+            const heart = document.createElement('i');
+            heart.classList.add('fa-solid', 'fa-heart', 'heart-particle');
+            heart.style.left = x + 'px';
+            heart.style.top = y + 'px';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 2000);
+        }
+
+        function addUserMessage(text, imageSrc) {
+            const msgDiv = document.createElement('div');
+            // User (Rahaf) messages
+            msgDiv.className = 'flex gap-4 max-w-3xl mx-auto flex-row-reverse animate-fade-in';
+            
+            let contentHtml = '';
+            if (imageSrc) {
+                contentHtml += `<img src="${imageSrc}" class="max-w-[200px] rounded-lg mb-2 border-2 border-rose-200">`;
+            }
+            if (text) {
+                contentHtml += `<div>${text.replace(/\n/g, '<br>')}</div>`;
+            }
+
+            msgDiv.innerHTML = `
+                <div class="w-10 h-10 flex-shrink-0 rounded-full bg-pink-100 flex items-center justify-center text-pink-500 border-2 border-white">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="flex-1 space-y-2 text-left">
+                    <div class="flex flex-col items-end">
+                         <div class="text-gray-800 leading-relaxed bg-white border border-pink-100 p-4 rounded-2xl rounded-tl-none shadow-sm text-right">
+                            ${contentHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(msgDiv);
+            scrollToBottom();
+        }
+
+        function addLoadingIndicator() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'loading-indicator';
+            loadingDiv.className = 'flex gap-4 max-w-3xl mx-auto opacity-0';
+            loadingDiv.style.animation = 'fadeIn 0.3s forwards';
+            loadingDiv.innerHTML = `
+                <div class="w-10 h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white shadow-md border-2 border-white">
+                    <i class="fa-solid fa-user-tie" style="font-size: 14px;"></i>
+                </div>
+                <div class="flex items-center p-4 bg-white rounded-2xl rounded-tr-none shadow-sm border border-pink-100">
+                    <div class="typing-dot w-2 h-2 bg-rose-500 rounded-full mx-0.5"></div>
+                    <div class="typing-dot w-2 h-2 bg-rose-500 rounded-full mx-0.5"></div>
+                    <div class="typing-dot w-2 h-2 bg-rose-500 rounded-full mx-0.5"></div>
+                </div>
+            `;
+            chatContainer.appendChild(loadingDiv);
+            scrollToBottom();
+            return loadingDiv;
+        }
+
+        function addAiMessage(text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'flex gap-4 max-w-3xl mx-auto animate-fade-in';
+            // Parse Markdown
+            const parsedText = marked.parse(text);
+            
+            msgDiv.innerHTML = `
+                <div class="w-10 h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white shadow-md border-2 border-white">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
+                <div class="flex-1 space-y-2">
+                    <div class="font-bold text-rose-900 text-sm">قيس GPT</div>
+                    <div class="text-white leading-relaxed bg-gradient-to-r from-rose-500 to-pink-600 p-4 rounded-2xl rounded-tr-none shadow-md prose prose-sm max-w-none prose-invert">
+                        ${parsedText}
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(msgDiv);
+            
+            // Heart burst
+            const rect = msgDiv.getBoundingClientRect();
+            for(let i=0; i<5; i++) {
+                setTimeout(() => createHeart(rect.left + 20, rect.top + 20), i * 100);
+            }
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // --- Gemini API Logic (Refactored to call backend) ---
+        async function callGemini(userText, imageBase64, imageMimeType) {
+            // New Endpoint: /api/chat
+            const url = '/api/chat';
+            
+            const payload = {
+                message: userText,
+                image: imageBase64, // Already base64 string without prefix
+                mimeType: imageMimeType
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error || response.statusText);
+                }
+                
+                const data = await response.json();
+                return data.reply;
+
+            } catch (e) {
+                console.error("Gemini Error", e);
+                return "حبيبتي رهف، النت فصل بس قلبي لسا موصول فيكِ ❤️ (خطأ اتصال)";
+            }
+        }
+
+        // --- Sidebar Features ---
+        async function generateLoveLetter() {
+            // Prompt Gemini to write FOR Rahaf AS Qais
+            const prompt = "اكتب رسالة حب عميقة ومؤثرة من قيس إلى حبيبته رهف. عبر فيها عن مدى أهميتها في حياتك.";
+            
+            addUserMessage("✨ اكتب لي رسالة حب ✨", null);
+            const loader = addLoadingIndicator();
+            
+            try {
+                const response = await callGemini(prompt, null, null);
+                loader.remove();
+                addAiMessage(response);
+            } catch (e) {
+                loader.remove();
+                addAiMessage("حبي لك أكبر من كل الكلمات.. ❤️");
+            }
+        }
+
+        // --- Main Submit Handler ---
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = userInput.value.trim();
+            const hasImage = !!currentImageBase64;
+            
+            if (!text && !hasImage) return;
+
+            // 1. UI Updates
+            const imageSrc = hasImage ? document.getElementById('image-preview').src : null;
+            addUserMessage(text, imageSrc);
+            
+            const tempText = text;
+            const tempImage = currentImageBase64;
+            const tempMime = currentImageMimeType;
+
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            clearImage();
+            sendBtn.disabled = true;
+
+            // 2. Loading
+            const loader = addLoadingIndicator();
+
+            // 3. Logic: Check Hardcoded -> Else Gemini
+            const cleanInput = tempText.toLowerCase().trim();
+
+            if (!hasImage && specificAnswers[cleanInput]) {
+                setTimeout(() => {
+                    loader.remove();
+                    addAiMessage(specificAnswers[cleanInput]);
+                    sendBtn.disabled = false;
+                    userInput.focus();
+                }, 1000);
+                return;
+            }
+
+            // 4. Call Gemini via Backend
+            const responseText = await callGemini(tempText || "شوفي هالصورة يا عمري..", tempImage, tempMime);
+            
+            loader.remove();
+            addAiMessage(responseText);
+            sendBtn.disabled = false;
+            userInput.focus();
+        });
+
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                chatForm.dispatchEvent(new Event('submit'));
+            }
+        });
+
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "qais-gpt",
+  "version": "1.0.0",
+  "description": "QaisGPT Chat Application",
+  "main": "api/chat.js",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
